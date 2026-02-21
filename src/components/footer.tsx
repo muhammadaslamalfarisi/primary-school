@@ -175,7 +175,7 @@ export default function Footer() {
             <div className="relative w-full h-52 rounded-3xl overflow-hidden shadow-lg border border-white group">
               <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1974.1720393924545!2d116.38291597366334!3d-8.268509389209504!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcdd5128c1bfd85%3A0xcde2f3b32a95d0e2!2sSD%20Negeri%202%20Sukadana!5e0!3m2!1sid!2sus!4v1771349048467!5m2!1sid!2sus"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31586.75233298735!2d116.3645648347656!3d-8.268513100000003!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcdd5000853a6d5%3A0xa082a40857732ee8!2sSD%20Negeri%201%20Batu%20Rakit!5e0!3m2!1sid!2sus!4v1771683493696!5m2!1sid!2sus"
                 className="w-full h-full border-0 grayscale group-hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100"
                 allowFullScreen
                 loading="lazy"
