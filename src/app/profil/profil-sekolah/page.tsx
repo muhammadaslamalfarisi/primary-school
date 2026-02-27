@@ -1,7 +1,9 @@
 import React from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import {
   School,
   Users,
@@ -11,7 +13,9 @@ import {
   Building2,
   Phone,
   Mail,
+  ArrowRight,
 } from "lucide-react";
+import { SCHOOL_INFO, SCHOOL_PROFILE } from "@/lib/constants";
 
 export default function ProfilSekolahPage() {
   return (
@@ -23,7 +27,7 @@ export default function ProfilSekolahPage() {
             Tentang Kami
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
-            Profil SD Negeri 1 Batu Rakit
+            {SCHOOL_INFO.name}
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">
             Mengenal lebih dekat lembaga pendidikan kami yang berkomitmen
@@ -108,7 +112,7 @@ export default function ProfilSekolahPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">NPSN</span>
                   <span className="font-mono font-medium text-slate-800">
-                    50200145
+                    {SCHOOL_INFO.npsn}
                   </span>
                 </div>
                 <Separator />
@@ -116,14 +120,16 @@ export default function ProfilSekolahPage() {
                   <span className="text-sm text-muted-foreground">
                     Akreditasi
                   </span>
-                  <Badge className="bg-green-600">Grade B</Badge>
+                  <Badge className="bg-green-600">
+                    {SCHOOL_PROFILE.accreditation}
+                  </Badge>
                 </div>
                 <Separator />
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">
-                    Kurikulum
+                  <span className="text-sm text-muted-foreground">Sejak</span>
+                  <span className="font-medium">
+                    {SCHOOL_PROFILE.establishment}
                   </span>
-                  <span className="font-medium">Kurikulum Merdeka</span>
                 </div>
               </CardContent>
             </Card>
@@ -141,7 +147,9 @@ export default function ProfilSekolahPage() {
                     <p className="text-xs text-blue-600 font-bold uppercase">
                       Total Siswa
                     </p>
-                    <p className="text-xl font-bold text-slate-800">188</p>
+                    <p className="text-xl font-bold text-slate-800">
+                      {SCHOOL_PROFILE.totalStudents}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 p-3 bg-orange-50 rounded-lg">
@@ -150,7 +158,9 @@ export default function ProfilSekolahPage() {
                     <p className="text-xs text-orange-600 font-bold uppercase">
                       Tenaga PTK
                     </p>
-                    <p className="text-xl font-bold text-slate-800">13</p>
+                    <p className="text-xl font-bold text-slate-800">
+                      {SCHOOL_PROFILE.totalTeachers}
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -163,13 +173,35 @@ export default function ProfilSekolahPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3 text-sm">
-                  <Phone size={16} /> (0370) 123456
+                  <Phone size={16} /> {SCHOOL_INFO.phone}
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Mail size={16} /> info@sdn1baturakit.sch.id
+                  <Mail size={16} /> {SCHOOL_INFO.email}
                 </div>
               </CardContent>
             </Card>
+
+            {/* Navigasi ke Halaman Profil Lainnya */}
+            <div className="space-y-2 pt-4 border-t">
+              <p className="text-sm font-semibold text-slate-700 mb-3">
+                Jelajahi Profil
+              </p>
+              <Link href="/profil/visi-misi">
+                <Button variant="outline" className="w-full justify-between">
+                  Visi & Misi <ArrowRight size={16} />
+                </Button>
+              </Link>
+              <Link href="/profil/struktur-organisasi">
+                <Button variant="outline" className="w-full justify-between">
+                  Struktur Organisasi <ArrowRight size={16} />
+                </Button>
+              </Link>
+              <Link href="/profil/sarana-prasarana">
+                <Button variant="outline" className="w-full justify-between">
+                  Sarana & Prasarana <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </main>

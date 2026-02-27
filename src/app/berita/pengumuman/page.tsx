@@ -21,33 +21,13 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import { ANNOUNCEMENTS } from "@/lib/constants";
+
 export default function PengumumanPage() {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Data ini nantinya akan diambil dari database via Admin Panel
-  const allPengumuman = [
-    {
-      id: "p-1",
-      title: "Sistem Penerimaan Murid Baru (SPMB) Tahun Ajaran 2026/2027",
-      date: "1 Juli 2026",
-      category: "Penting",
-      desc: "Informasi mengenai persyaratan, alur pendaftaran, dan jadwal seleksi calon siswa baru SD Negeri 1 Batu Rakit.",
-    },
-    {
-      id: "p-2",
-      title: "Libur Akhir Semester Genap dan Pembagian Rapor",
-      date: "28 Juni 2026",
-      category: "Akademik",
-      desc: "Diberitahukan kepada seluruh orang tua siswa bahwa pembagian rapor akan dilaksanakan pada hari Sabtu mendatang.",
-    },
-    {
-      id: "p-3",
-      title: "Kegiatan Ekstrakurikuler Pramuka Wajib Kelas 4-6",
-      date: "08 Mei 2026",
-      category: "Kegiatan",
-      desc: "Pengumuman mengenai jadwal rutin mingguan dan perlengkapan yang harus dibawa oleh peserta didik.",
-    },
-  ];
+  // Data dari constants
+  const allPengumuman = ANNOUNCEMENTS;
 
   const filteredData = allPengumuman.filter((p) =>
     p.title.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -136,7 +116,7 @@ export default function PengumumanPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">
-                    {item.desc}
+                    {item.excerpt}
                   </p>
                 </CardContent>
                 <CardFooter className="bg-slate-50/50 px-6 py-3 flex justify-end">

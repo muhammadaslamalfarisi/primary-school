@@ -206,6 +206,14 @@ export default function Footer() {
               Syarat & Ketentuan
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 transition-all group-hover:w-full" />
             </Link>
+            <Link
+              href="/admin"
+              className="hover:text-slate-600 transition-colors relative group opacity-60 hover:opacity-100"
+              title="Admin Panel"
+            >
+              ⚙️
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-slate-600 transition-all group-hover:w-full" />
+            </Link>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -14,20 +14,56 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LockKeyhole, User, ArrowRight, Loader2 } from "lucide-react";
 
+interface PTKCredential {
+  id: string;
+  username: string;
+  password: string;
+  active: boolean;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [activeCredential, setActiveCredential] =
+    useState<PTKCredential | null>(null);
+
+  useEffect(() => {
+    // Load active credential from localStorage
+    const saved = localStorage.getItem("portalPTKCredentials");
+    if (saved) {
+      const credentials = JSON.parse(saved);
+      const active = credentials.find((c: PTKCredential) => c.active);
+      setActiveCredential(active || credentials[0]);
+    } else {
+      // Set default credential if not exists
+      const defaultCred: PTKCredential = {
+        id: "1",
+        username: "ptk",
+        password: "12345",
+        active: true,
+      };
+      setActiveCredential(defaultCred);
+      localStorage.setItem(
+        "portalPTKCredentials",
+        JSON.stringify([defaultCred]),
+      );
+    }
+  }, []);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    // Simulasi pengecekan akun (Nanti disesuaikan dengan CRUD Admin)
+    // Simulasi pengecekan akun dengan kredensial dari localStorage
     setTimeout(() => {
-      if (form.username === "admin" && form.password === "12345") {
+      if (
+        activeCredential &&
+        form.username === activeCredential.username &&
+        form.password === activeCredential.password
+      ) {
         // SIMPAN STATUS LOGIN: Memberi tanda di browser
         localStorage.setItem("isLoggedIn", "true");
 
