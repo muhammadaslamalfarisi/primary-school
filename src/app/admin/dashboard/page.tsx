@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,22 +11,32 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import {
-  LayoutDashboard,
-  Newspaper,
-  Settings,
+  Users,
+  BookOpen,
+  Users2,
+  BarChart3,
   LogOut,
   Menu,
   X,
+  Home,
+  Settings,
+  MessageSquare,
+  FileText,
+  LayoutDashboard,
   Megaphone,
   Mail,
+  Newspaper,
   Download,
   Gavel,
-  BookOpen,
-  Users,
   Award,
+  IdCard,
+  UserCheck,
   Lock,
+  Shield,
+  BookMarked,
+  GraduationCap,
 } from "lucide-react";
 
 const menuItems = [
@@ -69,6 +79,42 @@ const menuItems = [
   { icon: Gavel, label: "JDIH", href: "/admin/jdih", color: "text-indigo-600" },
   { icon: Users, label: "PTK", href: "/admin/ptk", color: "text-violet-600" },
   { icon: Award, label: "Siswa", href: "/admin/siswa", color: "text-red-600" },
+  {
+    icon: IdCard,
+    label: "Kartu Siswa",
+    href: "/admin/student-card",
+    color: "text-teal-600",
+  },
+  {
+    icon: UserCheck,
+    label: "Kartu Pegawai",
+    href: "/admin/staff-card",
+    color: "text-emerald-600",
+  },
+  {
+    icon: Shield,
+    label: "Akun Admin",
+    href: "/admin/account-admin",
+    color: "text-red-600",
+  },
+  {
+    icon: BookMarked,
+    label: "Akun Guru",
+    href: "/admin/account-guru",
+    color: "text-green-600",
+  },
+  {
+    icon: Users,
+    label: "Akun Tendik",
+    href: "/admin/account-tendik",
+    color: "text-indigo-600",
+  },
+  {
+    icon: GraduationCap,
+    label: "Akun Siswa",
+    href: "/admin/account-siswa",
+    color: "text-purple-600",
+  },
   {
     icon: Lock,
     label: "Portal PTK",
@@ -127,7 +173,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
       {/* Navbar - Dapodik Style */}
       <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-b border-slate-200/50 z-40 shadow-sm">
         <div className="px-6 h-20 flex items-center justify-between">
@@ -140,7 +186,7 @@ export default function AdminDashboard() {
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
                 <LayoutDashboard className="text-white" size={24} />
               </div>
               <div>
@@ -172,6 +218,15 @@ export default function AdminDashboard() {
       </nav>
 
       <div className="relative pt-20">
+        {/* floating hamburger toggle when sidebar is closed */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed top-24 left-4 z-60 p-2 bg-white rounded-lg shadow-lg hover:bg-slate-100 transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+        )}
         {/* Sidebar - Dapodik Style */}
         <motion.aside
           initial={{ x: -280 }}
@@ -180,7 +235,7 @@ export default function AdminDashboard() {
           className="fixed left-0 top-20 bottom-0 w-72 bg-white border-r border-slate-200 overflow-y-auto z-50 shadow-lg"
         >
           {/* Sidebar Header */}
-          <div className="p-6 border-b border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <div className="p-6 border-b border-slate-200 bg-linear-to-br from-blue-50 to-indigo-50">
             <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
               Menu Utama
             </h3>
@@ -199,7 +254,10 @@ export default function AdminDashboard() {
                 <div
                   className={`p-2 rounded-lg ${item.color} bg-opacity-10 group-hover:scale-110 transition-transform`}
                 >
-                  <item.icon size={18} className={item.color} />
+                  {(() => {
+                    const IconComponent = item.icon as React.ComponentType<any>;
+                    return <IconComponent size={18} className={item.color} />;
+                  })()}
                 </div>
                 <span className="font-medium text-sm flex-1">{item.label}</span>
                 <div className="w-1.5 h-1.5 bg-slate-300 rounded-full group-hover:bg-blue-500 transition-colors" />

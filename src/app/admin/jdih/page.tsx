@@ -41,6 +41,7 @@ export default function AdminJDIH() {
     description: "",
     category: "Peraturan",
     year: new Date().getFullYear().toString(),
+    tipe: "",
   });
 
   const categoryOptions = [
@@ -51,34 +52,51 @@ export default function AdminJDIH() {
   ];
 
   useEffect(() => {
-    const stored = localStorage.getItem("legaldocs");
-    if (stored) {
-      setDocs(JSON.parse(stored));
-    } else {
-      const initial = LEGAL_DOCS.map((doc, idx) => ({
-        id: idx + 1,
-        title: doc.title,
-        description: doc.description,
-        category: doc.category,
-        year: "2024",
-      }));
-      setDocs(initial);
-      localStorage.setItem("legaldocs", JSON.stringify(initial));
-    }
+    fetchDocs();
   }, []);
 
-  const handleAdd = () => {
+  const fetchDocs = async () => {
+    try {
+      const res = await fetch("/api/jdih", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: LegalDoc[] = data.data.map((d: any) => ({
+          id: d.id,
+          title: d.judul,
+          description: d.deskripsi,
+          category: d.tipe,
+          year: new Date(d.createdAt).getFullYear().toString(),
+        }));
+        setDocs(list);
+      }
+    } catch (err) {
+      console.error("fetchDocs error", err);
+    }
+  };
+
+  const handleAdd = async () => {
     if (!formData.title) return;
-
-    const newDoc: LegalDoc = {
-      id: Math.max(...docs.map((d) => d.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newDoc, ...docs];
-    setDocs(updated);
-    localStorage.setItem("legaldocs", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/jdih", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tipe: formData.category,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchDocs();
+        resetForm();
+      } else {
+        console.error("add doc error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -89,28 +107,53 @@ export default function AdminJDIH() {
         description: item.description,
         category: item.category,
         year: item.year,
+        tipe: item.category,
       });
       setEditingId(id);
       setIsAddingNew(true);
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.title) return;
-
-    const updated = docs.map((d) =>
-      d.id === editingId ? { ...d, ...formData } : d,
-    );
-
-    setDocs(updated);
-    localStorage.setItem("legaldocs", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.title || editingId == null) return;
+    try {
+      const res = await fetch(`/api/jdih/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tipe: formData.category,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchDocs();
+        resetForm();
+      } else {
+        console.error("update doc error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = docs.filter((d) => d.id !== id);
-    setDocs(updated);
-    localStorage.setItem("legaldocs", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/jdih/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchDocs();
+      } else {
+        const result = await res.json();
+        console.error("delete doc error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {
@@ -119,6 +162,7 @@ export default function AdminJDIH() {
       description: "",
       category: "Peraturan",
       year: new Date().getFullYear().toString(),
+      tipe: "Peraturan",
     });
     setEditingId(null);
     setIsAddingNew(false);

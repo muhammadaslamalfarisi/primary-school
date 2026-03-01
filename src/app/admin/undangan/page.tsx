@@ -47,35 +47,54 @@ export default function AdminUndangan() {
   });
 
   useEffect(() => {
-    const stored = localStorage.getItem("invitations");
-    if (stored) {
-      setInvitations(JSON.parse(stored));
-    } else {
-      const initial = INVITATIONS.map((i, idx) => ({
-        id: idx + 1,
-        title: i.title,
-        description: i.description,
-        date: i.date,
-        time: i.time,
-        place: i.place,
-      }));
-      setInvitations(initial);
-      localStorage.setItem("invitations", JSON.stringify(initial));
-    }
+    fetchInvitations();
   }, []);
 
-  const handleAdd = () => {
+  const fetchInvitations = async () => {
+    try {
+      const res = await fetch("/api/undangan", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: Invitation[] = data.data.map((u: any) => ({
+          id: u.id,
+          title: u.judul,
+          description: u.deskripsi,
+          date: new Date(u.tanggalAcara).toISOString().split("T")[0],
+          time: u.waktuAcara || "",
+          place: u.lokasi || "",
+        }));
+        setInvitations(list);
+      }
+    } catch (err) {
+      console.error("fetchInvitations error", err);
+    }
+  };
+
+  const handleAdd = async () => {
     if (!formData.title || !formData.description) return;
-
-    const newInvitation: Invitation = {
-      id: Math.max(...invitations.map((i) => i.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newInvitation, ...invitations];
-    setInvitations(updated);
-    localStorage.setItem("invitations", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/undangan", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tanggalAcara: formData.date,
+          waktuAcara: formData.time,
+          lokasi: formData.place,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchInvitations();
+        resetForm();
+      } else {
+        console.error("add invitation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -93,22 +112,48 @@ export default function AdminUndangan() {
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.title || !formData.description) return;
-
-    const updated = invitations.map((i) =>
-      i.id === editingId ? { ...i, ...formData } : i,
-    );
-
-    setInvitations(updated);
-    localStorage.setItem("invitations", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.title || !formData.description || editingId == null) return;
+    try {
+      const res = await fetch(`/api/undangan/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tanggalAcara: formData.date,
+          waktuAcara: formData.time,
+          lokasi: formData.place,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchInvitations();
+        resetForm();
+      } else {
+        console.error("update invitation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = invitations.filter((i) => i.id !== id);
-    setInvitations(updated);
-    localStorage.setItem("invitations", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/undangan/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchInvitations();
+      } else {
+        const result = await res.json();
+        console.error("delete invitation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {

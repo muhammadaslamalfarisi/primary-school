@@ -1,0 +1,490 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum untuk role pengguna
+enum UserRole {
+  SUPER_ADMIN
+  PENDIDIK
+  TENAGA_KEPENDIDIKAN
+  SISWA
+}
+
+// Enum untuk status
+enum StatusAkun {
+  AKTIF
+  NONAKTIF
+  SUSPENDED
+}
+
+enum StatusSiswa {
+  AKTIF
+  GRADUATED
+  PINDAH
+  NONAKTIF
+}
+
+// Model User - Data pengguna sistem
+model User {
+  id                String             @id @default(cuid())
+  email             String             @unique
+  username          String             @unique
+  password          String
+  fullName          String
+  role              UserRole           @default(SISWA)
+  status            StatusAkun         @default(AKTIF)
+  profilePicture    String?
+  phoneNumber       String?
+  
+  // Relationships
+  pendidik          Pendidik?
+  tenagaKependidikan TenagaKependidikan?
+  siswa             Siswa?
+  staffCards        KartuStaff[] @relation("staffCards")
+  
+  // Audit fields
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  lastLogin         DateTime?
+  
+  @@index([email])
+  @@index([role])
+}
+
+// Model Siswa - Data peserta didik
+model Siswa {
+  id                    String          @id @default(cuid())
+  userId                String          @unique
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  nisn                  String          @unique
+  nis                   String          @unique
+  status                StatusSiswa     @default(AKTIF)
+  
+  // Data pribadi
+  tempatLahir           String?
+  tanggalLahir          DateTime?
+  jenisKelamin          String?
+  agama                 String?
+  alamat                String?
+  desaKelurahan         String?
+  kecamatan             String?
+  kabupatenKota         String?
+  provinsi              String?
+  kodePos               String?
+  
+  // Data orang tua
+  namaAyah              String?
+  pekerjaanAyah         String?
+  noTelpAyah            String?
+  namaIbu               String?
+  pekerjaanIbu          String?
+  noTelpIbu             String?
+  namaWali              String?
+  pekerjaanWali         String?
+  noTelpWali            String?
+  
+  // Data akademik
+  rombonganBelajarId    String?
+  rombonganBelajar      RombonganBelajar? @relation(fields: [rombonganBelajarId], references: [id])
+  nilaiRapor            NilaiRapor[]
+  kehadiran             Kehadiran[]
+  
+  // Dokumen
+  dokumenPendaftaran    DokumenPendaftaran[]
+  kartuSiswa            KartuSiswa[]
+  
+  // Timestamps
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  
+  @@index([nisn])
+  @@index([nis])
+  @@index([rombonganBelajarId])
+}
+
+// Model Pendidik - Data guru
+model Pendidik {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  nip               String          @unique
+  nuptk             String?         @unique
+  statusPegawai     String?
+  
+  // Data pribadi
+  tempatLahir       String?
+  tanggalLahir      DateTime?
+  jenisKelamin      String?
+  agama             String?
+  noIdentitas       String?
+  alamat            String?
+  noTelepon         String?
+  
+  // Data akademik
+  pendidikanTerakhir String?
+  jurusanPendidikan String?
+  
+  // Keahlian
+  mataPelajaran     MataPelajaran[]
+  rombonganBelajar  RombonganBelajar[]
+  
+  // Timestamps
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([nip])
+}
+
+// Model Tenaga Kependidikan - Data staff
+model TenagaKependidikan {
+  id                String          @id @default(cuid())
+  userId            String          @unique
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  nip               String?         @unique
+  noIdentitas       String?
+  jabatan           String
+  departemen        String
+  
+  // Data pribadi
+  tempatLahir       String?
+  tanggalLahir      DateTime?
+  jenisKelamin      String?
+  agama             String?
+  alamat            String?
+  noTelepon         String?
+  
+  // Data akademik
+  pendidikanTerakhir String?
+  
+  // Timestamps
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([nip])
+}
+
+// Model RombonganBelajar - Kelas/Rombel
+model RombonganBelajar {
+  id                String          @id @default(cuid())
+  nama              String
+  tingkat           Int             // 1-6 untuk SD
+  paralel           String          // A, B, C, D
+  tahunAjaran       String          // 2023/2024
+  
+  pendidikId        String?
+  pendidik          Pendidik?       @relation(fields: [pendidikId], references: [id])
+  
+  siswa             Siswa[]
+  jadwalPelajaran   JadwalPelajaran[]
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@unique([nama, tahunAjaran])
+  @@index([tingkat])
+  @@index([tahunAjaran])
+}
+
+// Model Mata Pelajaran
+model MataPelajaran {
+  id                String          @id @default(cuid())
+  nama              String          @unique
+  kodeMP            String          @unique
+  satuan            String?         // jam pelajaran
+  
+  pendidik          Pendidik[]
+  jadwalPelajaran   JadwalPelajaran[]
+  nilaiRapor        NilaiRapor[]
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([nama])
+}
+
+// Model Jadwal Pelajaran
+model JadwalPelajaran {
+  id                String          @id @default(cuid())
+  rombonganBelajarId String
+  rombonganBelajar  RombonganBelajar @relation(fields: [rombonganBelajarId], references: [id])
+  
+  mataPelajaranId   String
+  mataPelajaran     MataPelajaran   @relation(fields: [mataPelajaranId], references: [id])
+  
+  hari              String          // Senin, Selasa, etc
+  jamMulai          String          // 07:30
+  jamSelesai        String          // 08:15
+  ruang             String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([rombonganBelajarId])
+  @@index([mataPelajaranId])
+}
+
+// Model Nilai Rapor
+model NilaiRapor {
+  id                String          @id @default(cuid())
+  siswaId           String
+  siswa             Siswa           @relation(fields: [siswaId], references: [id])
+  
+  mataPelajaranId   String
+  mataPelajaran     MataPelajaran   @relation(fields: [mataPelajaranId], references: [id])
+  
+  semester          Int             // 1 atau 2
+  tahunAjaran       String
+  
+  nilaiHarian       Float?
+  nilaiUts          Float?
+  nilaiUas          Float?
+  nilaiAkhir        Float?
+  predikat          String?         // A, B, C, D
+  
+  catatan           String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@unique([siswaId, mataPelajaranId, semester, tahunAjaran])
+  @@index([siswaId])
+  @@index([mataPelajaranId])
+}
+
+// Model Kehadiran
+model Kehadiran {
+  id                String          @id @default(cuid())
+  siswaId           String
+  siswa             Siswa           @relation(fields: [siswaId], references: [id])
+  
+  tanggal           DateTime
+  status            String          // "HADIR", "SAKIT", "IZIN", "ALPHA"
+  keterangan        String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@unique([siswaId, tanggal])
+  @@index([siswaId])
+  @@index([tanggal])
+}
+
+// Model Dokumen Pendaftaran
+model DokumenPendaftaran {
+  id                String          @id @default(cuid())
+  siswaId           String
+  siswa             Siswa           @relation(fields: [siswaId], references: [id])
+  
+  tipeDocument      String          // "IJAZAH", "SKHUN", "SURAT_KETERANGAN", etc
+  namaFile          String
+  urlFile           String
+  keterangan        String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([siswaId])
+}
+
+// Model Pengumuman
+model Pengumuman {
+  id                String          @id @default(cuid())
+  judul             String
+  isi               String
+  tanggal           DateTime        @default(now())
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([tanggal])
+}
+
+// Model Undangan
+model Undangan {
+  id                String          @id @default(cuid())
+  judul             String
+  deskripsi         String
+  tanggalAcara      DateTime
+  waktuAcara        String?
+  lokasi            String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([tanggalAcara])
+}
+
+// Model Inovasi
+model Inovasi {
+  id                String          @id @default(cuid())
+  judul             String
+  deskripsi         String
+  tujuan            String?
+  manfaat           String?
+  gambar            String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+// Model Program Pembelajaran
+model Program {
+  id                String          @id @default(cuid())
+  nama              String
+  deskripsi         String
+  jenis             String          // "PEMBELAJARAN", "EKSTRAKURIKULER", "BOSP", "PIP", "SPMB"
+  keterangan        String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([jenis])
+}
+
+// Model Sarana Prasarana
+model SaranaPrasarana {
+  id                String          @id @default(cuid())
+  nama              String
+  jenis             String
+  jumlah            Int
+  kondisi           String          // "BAIK", "SEDANG", "RUSAK"
+  lokasi            String?
+  keterangan        String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+// Model Download Resource
+model DownloadResource {
+  id                String          @id @default(cuid())
+  judul             String
+  deskripsi         String?
+  kategori          String          // "FORMULIR", "JADWAL", "PANDUAN", etc
+  namaFile          String
+  urlFile           String
+  ukuran            Int?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([kategori])
+}
+
+// Model JDIH (Jaringan Dokumentasi Informasi Hukum)
+model JDIH {
+  id                String          @id @default(cuid())
+  judul             String
+  tipe              String          // "PERATURAN", "KEPUTUSAN", "INSTRUKSI", etc
+  petunjuk          String?
+  namaFile          String
+  urlFile           String
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([tipe])
+}
+
+// Model KartuSiswa - Student Card (Cetak Kartu Identitas)
+model KartuSiswa {
+  id                String          @id @default(cuid())
+  siswaId           String
+  siswa             Siswa           @relation(fields: [siswaId], references: [id], onDelete: Cascade)
+  
+  // Metadata Kartu
+  nomorUrut         String          @unique
+  tahunPelajaran    String          // Contoh: "2025/2026"
+  statusAktif       Boolean         @default(true)
+  
+  // Tanda Tangan
+  tandaTanganPrinsipal  String?     // Base64 atau URL
+  tandaTanganSiswa      String?     // Base64 atau URL
+  
+  // Metadata cetak
+  dibuat_oleh       String          // User ID yang membuat
+  dibuat_tanggal    DateTime        @default(now())
+  dicetak_terakhir  DateTime?       // Kapan terakhir dicetak
+  jumlah_cetak      Int             @default(0)
+  
+  updatedAt         DateTime        @updatedAt
+  
+  @@unique([siswaId, tahunPelajaran])
+  @@index([siswaId])
+  @@index([tahunPelajaran])
+  @@index([statusAktif])
+}
+
+// Model KartuStaff - Kartu Identitas untuk Admin, Kepala Sekolah, Pendidik, Tenaga Kependidikan
+model KartuStaff {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation("staffCards", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Metadata Kartu
+  nomorUrut         String          @unique
+  tahunPelajaran    String          // Contoh: "2025/2026"
+  role              String          // SUPER_ADMIN, KEPALA_SEKOLAH, PENDIDIK, TENAGA_KEPENDIDIKAN
+  statusAktif       Boolean         @default(true)
+  
+  // Informasi dari relasi role
+  nip               String?         // NIP jika ada
+  jabatan           String?         // Jabatan (dari Pendidik/TenagaKependidikan)
+  departemen        String?         // Departemen (dari TenagaKependidikan)
+  
+  // Tanda Tangan
+  tandaTanganUser   String?         // Base64 atau URL
+  tandaTanganKepalaSekolah  String? // Base64 atau URL
+  
+  // Metadata cetak
+  dibuat_oleh       String          // User ID yang membuat
+  dibuat_tanggal    DateTime        @default(now())
+  dicetak_terakhir  DateTime?       // Kapan terakhir dicetak
+  jumlah_cetak      Int             @default(0)
+  
+  updatedAt         DateTime        @updatedAt
+  
+  @@unique([userId, tahunPelajaran])
+  @@index([userId])
+  @@index([tahunPelajaran])
+  @@index([role])
+  @@index([statusAktif])
+}
+
+// Model Kontak
+model Kontak {
+  id                String          @id @default(cuid())
+  nama              String
+  email             String
+  noTelepon         String?
+  pesan             String
+  status            String?         // "BARU", "DIBACA", "DITANGGAPI"
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Model Pengaturan Sistem
+model SistemSetting {
+  id                String          @id @default(cuid())
+  key               String          @unique
+  value             String
+  deskripsi         String?
+  
+  CreatedAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}

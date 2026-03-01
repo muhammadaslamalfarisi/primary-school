@@ -44,34 +44,51 @@ export default function AdminInovasi() {
   });
 
   useEffect(() => {
-    const stored = localStorage.getItem("innovations");
-    if (stored) {
-      setInnovations(JSON.parse(stored));
-    } else {
-      const initial = INNOVATIONS.map((inov, idx) => ({
-        id: idx + 1,
-        title: inov.title,
-        description: inov.excerpt || inov.content.substring(0, 100),
-        benefits: inov.author || "Sekolah",
-        year: inov.date.split("-")[0],
-      }));
-      setInnovations(initial);
-      localStorage.setItem("innovations", JSON.stringify(initial));
-    }
+    fetchInnovations();
   }, []);
 
-  const handleAdd = () => {
+  const fetchInnovations = async () => {
+    try {
+      const res = await fetch("/api/inovasi", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: Innovation[] = data.data.map((i: any) => ({
+          id: i.id,
+          title: i.judul,
+          description: i.deskripsi,
+          benefits: i.tujuan || "",
+          year: new Date(i.createdAt).getFullYear().toString(),
+        }));
+        setInnovations(list);
+      }
+    } catch (err) {
+      console.error("fetchInnovations error", err);
+    }
+  };
+
+  const handleAdd = async () => {
     if (!formData.title || !formData.description) return;
-
-    const newInnovation: Innovation = {
-      id: Math.max(...innovations.map((i) => i.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newInnovation, ...innovations];
-    setInnovations(updated);
-    localStorage.setItem("innovations", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/inovasi", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tujuan: formData.benefits,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchInnovations();
+        resetForm();
+      } else {
+        console.error("add innovation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -88,22 +105,46 @@ export default function AdminInovasi() {
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.title || !formData.description) return;
-
-    const updated = innovations.map((i) =>
-      i.id === editingId ? { ...i, ...formData } : i,
-    );
-
-    setInnovations(updated);
-    localStorage.setItem("innovations", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.title || !formData.description || editingId == null) return;
+    try {
+      const res = await fetch(`/api/inovasi/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          tujuan: formData.benefits,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchInnovations();
+        resetForm();
+      } else {
+        console.error("update innovation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = innovations.filter((i) => i.id !== id);
-    setInnovations(updated);
-    localStorage.setItem("innovations", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/inovasi/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchInnovations();
+      } else {
+        const result = await res.json();
+        console.error("delete innovation error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {

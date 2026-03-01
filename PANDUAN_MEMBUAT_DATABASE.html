@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panduan Lengkap Membuat Database - Website Manajemen Sekolah</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #1e40af;
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-align: center;
+        border-bottom: 3px solid #1e40af;
+        padding-bottom: 15px;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 1.1em;
+      }
+
+      .meta-info {
+        background: #f0f9ff;
+        border-left: 4px solid #1e40af;
+        padding: 15px;
+        margin-bottom: 30px;
+        font-size: 0.95em;
+      }
+
+      .toc {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 5px;
+      }
+
+      .toc h2 {
+        color: #1e40af;
+        margin-bottom: 15px;
+      }
+
+      .toc ol {
+        margin-left: 20px;
+      }
+
+      .toc li {
+        margin-bottom: 8px;
+        color: #4b5563;
+      }
+
+      .toc a {
+        color: #1e40af;
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        text-decoration: underline;
+      }
+
+      h2 {
+        color: #1e40af;
+        font-size: 1.8em;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1e40af;
+      }
+
+      h3 {
+        color: #2563eb;
+        font-size: 1.3em;
+        margin-top: 25px;
+        margin-bottom: 15px;
+      }
+
+      h4 {
+        color: #3b82f6;
+        font-size: 1.1em;
+        margin-top: 15px;
+        margin-bottom: 10px;
+      }
+
+      p {
+        margin-bottom: 15px;
+        text-align: justify;
+      }
+
+      .step-box {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 3px;
+      }
+
+      code,
+      pre {
+        background: #1f2937;
+        color: #e5e7eb;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: "Courier New", monospace;
+        font-size: 0.95em;
+      }
+
+      pre {
+        padding: 15px;
+        overflow-x: auto;
+        margin: 15px 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        border: 1px solid #d1d5db;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 0.95em;
+      }
+
+      table th {
+        background: #1e40af;
+        color: white;
+        padding: 12px;
+        text-align: left;
+      }
+
+      table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      table tr:nth-child(even) {
+        background: #f9fafb;
+      }
+
+      .warning {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 3px;
+      }
+
+      .success {
+        background: #d1fae5;
+        border-left: 4px solid #10b981;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 3px;
+      }
+
+      .error {
+        background: #fee2e2;
+        border-left: 4px solid #ef4444;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 3px;
+      }
+
+      .terminal-output {
+        background: #1f2937;
+        color: #22c55e;
+        padding: 15px;
+        border-radius: 3px;
+        margin: 15px 0;
+        font-family: "courier new", monospace;
+        font-size: 0.9em;
+        overflow-x: auto;
+      }
+
+      ul,
+      ol {
+        margin-left: 30px;
+        margin-bottom: 15px;
+      }
+
+      li {
+        margin-bottom: 8px;
+      }
+
+      .flow-chart {
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 5px;
+        font-size: 0.95em;
+        font-family: monospace;
+      }
+
+      .account-box {
+        background: #faf5ff;
+        border: 1px solid #e9d5ff;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 3px;
+        font-size: 0.9em;
+      }
+
+      .emoji {
+        margin-right: 5px;
+      }
+
+      @media print {
+        body {
+          background: white;
+          padding: 0;
+        }
+
+        .container {
+          box-shadow: none;
+          max-width: 100%;
+          padding: 20px;
+        }
+
+        h1,
+        h2 {
+          page-break-after: avoid;
+        }
+
+        h3,
+        h4 {
+          page-break-after: avoid;
+        }
+
+        pre,
+        table {
+          page-break-inside: avoid;
+        }
+
+        a {
+          text-decoration: underline;
+          color: #1e40af;
+        }
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+
+      .footer {
+        margin-top: 50px;
+        text-align: center;
+        color: #999;
+        font-size: 0.9em;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>📚 PANDUAN LENGKAP MEMBUAT DATABASE DARI 0 SAMPAI 100%</h1>
+      <p class="subtitle">
+        Website Manajemen Sekolah - PostgreSQL + Next.js + Prisma
+      </p>
+
+      <div class="meta-info">
+        <strong>📅 Tanggal:</strong> 1 Maret 2026 |
+        <strong>🖥️ Platform:</strong> Windows / PostgreSQL 12+ |
+        <strong>📦 Stack:</strong> Next.js 16 + Prisma ORM 6
+      </div>
+
+      <div class="toc">
+        <h2>📋 Daftar Isi</h2>
+        <ol>
+          <li><a href="#persyaratan">Persyaratan Sistem</a></li>
+          <li><a href="#langkah1">Langkah 1: Install PostgreSQL</a></li>
+          <li><a href="#langkah2">Langkah 2: Verifikasi Instalasi</a></li>
+          <li><a href="#langkah3">Langkah 3: Buat Database Kosong</a></li>
+          <li>
+            <a href="#langkah4">Langkah 4: Konfigurasi File .env.local</a>
+          </li>
+          <li><a href="#langkah5">Langkah 5: Jalankan Migrasi Prisma</a></li>
+          <li><a href="#langkah6">Langkah 6: Seed Data Awal</a></li>
+          <li><a href="#langkah7">Langkah 7: Verifikasi Database</a></li>
+          <li><a href="#langkah8">Langkah 8: Jalankan Aplikasi</a></li>
+          <li><a href="#langkah9">Langkah 9: Test Login & Akses</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li><a href="#accounts">Test Login Accounts</a></li>
+        </ol>
+      </div>
+
+      <h2 id="persyaratan">📦 Persyaratan Sistem</h2>
+      <ul>
+        <li><strong>Windows 10 / 11 / Server 2019+</strong></li>
+        <li>
+          <strong>Node.js 18+</strong> (sudah terinstal; verifikasi dengan
+          <code>node --version</code>)
+        </li>
+        <li><strong>PostgreSQL 12 atau lebih baru</strong></li>
+        <li>
+          <strong>Git Bash</strong> atau <strong>Windows PowerShell</strong>
+        </li>
+        <li><strong>pgAdmin 4</strong> atau GUI PostgreSQL (opsional)</li>
+      </ul>
+      <p><strong>⏱️ Estimasi waktu total: 15-20 menit</strong></p>
+
+      <h2 id="langkah1">🚀 Langkah 1: Install PostgreSQL</h2>
+
+      <h3>Opsi A: Download Installer (Recommended)</h3>
+      <ol>
+        <li>
+          Kunjungi website PostgreSQL:
+          <code>https://www.postgresql.org/download/windows/</code>
+        </li>
+        <li>Klik "Download the installer"</li>
+        <li>
+          Unduh PostgreSQL <strong>15 atau 16</strong> (stabil dan recommended)
+        </li>
+        <li>Jalankan installer (<code>postgresql-16.x.exe</code>)</li>
+        <li>
+          Instalasi dengan konfigurasi:
+          <ul>
+            <li>
+              Folder instalasi: <code>C:\Program Files\PostgreSQL\16</code>
+            </li>
+            <li>Username: <code>postgres</code></li>
+            <li>
+              Password: <code>postgres_password</code> (ganti dengan password
+              yang kuat)
+            </li>
+            <li>Port: <code>5432</code> (default, biarkan saja)</li>
+            <li>Locale: Pilih bahasa sesuai preferensi</li>
+          </ul>
+        </li>
+        <li>Klik "Install" dan tunggu hingga selesai (~5 menit)</li>
+        <li>PostgreSQL akan auto-start setelah instalasi selesai</li>
+      </ol>
+
+      <h3>Opsi B: Docker (Jika Sudah Ada Docker)</h3>
+      <pre><code>docker run -d `
+  --name postgres-school `
+  -e POSTGRES_PASSWORD=postgres_password `
+  -e POSTGRES_DB=primary_school `
+  -p 5432:5432 `
+  postgres:16-alpine</code></pre>
+
+      <h2 id="langkah2">✅ Langkah 2: Verifikasi Instalasi</h2>
+      <p>Buka <strong>PowerShell</strong> dan jalankan:</p>
+      <pre><code>psql --version</code></pre>
+
+      <div class="success">
+        <strong>Output yang diharapkan:</strong><br />
+        <code>psql (PostgreSQL) 16.1</code>
+      </div>
+
+      <div class="warning">
+        <strong>⚠️ Jika error "psql is not recognized":</strong><br />
+        PostgreSQL belum ditambahkan ke PATH Windows. Lihat bagian
+        Troubleshooting.
+      </div>
+
+      <h2 id="langkah3">🗄️ Langkah 3: Buat Database Kosong</h2>
+
+      <h3>Cara 1: Menggunakan PowerShell (Recommended)</h3>
+      <p>
+        Buka PowerShell <strong>sebagai Administrator</strong> dan jalankan:
+      </p>
+      <pre><code>psql -U postgres -c "CREATE DATABASE primary_school;"</code></pre>
+      <p>Masukkan password PostgreSQL ketika diminta.</p>
+
+      <div class="success">
+        <strong>Output yang diharapkan:</strong>
+        <pre><code>Password for user postgres:
+CREATE DATABASE</code></pre>
+      </div>
+
+      <h3>Cara 2: Menggunakan createdb Command</h3>
+      <pre><code>createdb -U postgres primary_school</code></pre>
+
+      <h3>Cara 3: Menggunakan pgAdmin GUI</h3>
+      <ol>
+        <li>Buka pgAdmin 4</li>
+        <li>
+          Klik tab <strong>Servers → PostgreSQL 16</strong> (login dengan
+          password)
+        </li>
+        <li>Klik kanan <strong>Databases → Create → Database</strong></li>
+        <li>Isikan nama: <code>primary_school</code></li>
+        <li>Klik <strong>Save</strong></li>
+      </ol>
+
+      <div class="page-break"></div>
+
+      <h2 id="langkah4">🔧 Langkah 4: Konfigurasi File .env.local</h2>
+      <p>
+        File konfigurasi sudah ada di folder project. Edit menggunakan text
+        editor (Notepad++ atau VS Code):
+      </p>
+      <pre><code>c:\Users\DUNIA IMAJINASIKU\Documents\Web\primary-school\.env.local</code></pre>
+
+      <p><strong>Isi file .env.local dengan:</strong></p>
+      <pre><code># ========================================
+# DATABASE CONFIGURATION
+# ========================================
+DATABASE_URL="postgresql://postgres:postgres_password@localhost:5432/primary_school?schema=public"
+
+# ========================================
+# JWT CONFIGURATION
+# ========================================
+JWT_SECRET="ganti-dengan-kunci-aman-di-production-minimal-32-karakter"
+JWT_EXPIRY="7d"
+
+# ========================================
+# ENVIRONMENT
+# ========================================
+NODE_ENV="development"</code></pre>
+
+      <h4>Penjelasan Setiap Variable:</h4>
+      <table>
+        <tr>
+          <th>Variable</th>
+          <th>Nilai</th>
+          <th>Penjelasan</th>
+        </tr>
+        <tr>
+          <td><code>DATABASE_URL</code></td>
+          <td>
+            <code
+              >postgresql://postgres:postgres_password@localhost:5432/primary_school?schema=public</code
+            >
+          </td>
+          <td>
+            Connection string ke database. Ganti
+            <code>postgres_password</code> dengan password Anda.
+          </td>
+        </tr>
+        <tr>
+          <td><code>JWT_SECRET</code></td>
+          <td>String panjang & random</td>
+          <td>
+            Kunci enkripsi untuk token login (minimal 32 karakter kompleks)
+          </td>
+        </tr>
+        <tr>
+          <td><code>JWT_EXPIRY</code></td>
+          <td><code>7d</code></td>
+          <td>Token login berlaku selama 7 hari</td>
+        </tr>
+        <tr>
+          <td><code>NODE_ENV</code></td>
+          <td><code>development</code></td>
+          <td>
+            Mode pengembangan (gunakan <code>production</code> saat deploy)
+          </td>
+        </tr>
+      </table>
+
+      <div class="warning">
+        <strong>⚠️ Penting:</strong> Setelah edit .env.local,
+        <strong>simpan file</strong> dan <strong>tutup terminal</strong>.
+        Terminal baru akan mengambil konfigurasi yang diperbarui.
+      </div>
+
+      <h2 id="langkah5">🔄 Langkah 5: Jalankan Migrasi Prisma</h2>
+      <p>
+        Migrasi akan membuat semua tabel dan struktur database sesuai dengan
+        <code>prisma/schema.prisma</code>.
+      </p>
+
+      <h3>Buka PowerShell di folder project:</h3>
+      <pre><code>cd c:\Users\DUNIA IMAJINASIKU\Documents\Web\primary-school</code></pre>
+
+      <h3>Jalankan migrasi:</h3>
+      <pre><code>npm run prisma:migrate</code></pre>
+
+      <p><strong>Apa yang terjadi:</strong></p>
+      <ol>
+        <li>Prisma membaca <code>prisma/schema.prisma</code></li>
+        <li>Prisma membandingkan dengan database yang ada</li>
+        <li>Prisma menanyakan nama migrasi (misal: <code>init</code>)</li>
+        <li>
+          Prisma membuat file migrasi di folder <code>prisma/migrations/</code>
+        </li>
+        <li>Prisma menjalankan SQL ke database PostgreSQL</li>
+      </ol>
+
+      <div class="success">
+        <strong>Output yang diharapkan:</strong>
+        <pre><code>Environment variables loaded from .env.local
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": PostgreSQL database "primary_school"
+
+✔ Enter a name for this migration › init
+
+Applying migration `./prisma/migrations/20260301120000_init/migration.sql`
+
+✓ Completed in 2.34s
+
+Your database is now in sync with your schema.</code></pre>
+      </div>
+
+      <h3>19 Tabel yang Dibuat:</h3>
+      <pre><code>-- User Management
+User, Pendidik, TenagaKependidikan, Siswa
+
+-- Academic
+RombonganBelajar, MataPelajaran, NilaiRapor, Kehadiran, 
+JadwalPelajaran, DokumenPendaftaran
+
+-- Content Management
+Pengumuman, Undangan, Inovasi, Program, SaranaPrasarana, 
+DownloadResource, JDIH
+
+-- Other
+Kontak, SistemSetting</code></pre>
+
+      <h2 id="langkah6">🌱 Langkah 6: Seed Data Awal (Isi User & Konten)</h2>
+      <p>
+        Seed akan menambahkan data awal untuk testing, termasuk user dari semua
+        role.
+      </p>
+
+      <pre><code>npm run prisma:seed</code></pre>
+
+      <div class="success">
+        <strong>Output yang diharapkan:</strong>
+        <pre><code>Prisma schema loaded from prisma\schema.prisma
+Running seed command...
+🌱 Seeding database...
+✅ Super Admin created: admin@sekolah.id
+✅ Pendidik 1 created: guru1@sekolah.id
+✅ Pendidik 2 created: guru2@sekolah.id
+✅ Tenaga Kependidikan 1 created: staff1@sekolah.id
+✅ Tenaga Kependidikan 2 created: staff2@sekolah.id
+✅ Siswa 1 created: siswa1@sekolah.id
+✅ Siswa 2 created: siswa2@sekolah.id
+✅ Mata Pelajaran created: 10
+✅ Test Pengumuman created: 2
+✨ Database seeding completed!</code></pre>
+      </div>
+
+      <h3>Data yang Ditambahkan:</h3>
+      <ul>
+        <li><strong>7 User accounts</strong> dengan 4 role berbeda</li>
+        <li>
+          <strong>2 Kelas (Rombongan Belajar)</strong> dengan guru yang
+          ditugaskan
+        </li>
+        <li><strong>10 Mata Pelajaran</strong> standar kurikulum</li>
+        <li><strong>2 Sample Pengumuman</strong> untuk testing</li>
+      </ul>
+
+      <h2 id="langkah7">🔍 Langkah 7: Verifikasi Database</h2>
+
+      <h3>Cara 1: Menggunakan psql Command Line</h3>
+      <pre><code>psql -U postgres -d primary_school</code></pre>
+
+      <p>Ketika berhasil login, Anda akan melihat:</p>
+      <div class="terminal-output">
+        psql (16.1) Type "help" for help. primary_school=#
+      </div>
+
+      <h4>Query untuk Verifikasi:</h4>
+
+      <p><strong>1. Lihat semua tabel:</strong></p>
+      <pre><code>\dt</code></pre>
+
+      <p><strong>2. Hitung user per role:</strong></p>
+      <pre><code>SELECT role, COUNT(*) as jumlah FROM "User" GROUP BY role;</code></pre>
+
+      <p><strong>3. Lihat semua user:</strong></p>
+      <pre><code>SELECT id, email, role, status FROM "User";</code></pre>
+
+      <p><strong>4. Lihat data siswa dengan kelasnya:</strong></p>
+      <pre><code>SELECT u.fullName, s.nisn, rb.nama as kelas FROM "Siswa" s 
+JOIN "User" u ON s.userId = u.id 
+LEFT JOIN "RombonganBelajar" rb ON s.rombonganBelajarId = rb.id;</code></pre>
+
+      <p><strong>5. Keluar dari psql:</strong></p>
+      <pre><code>\q</code></pre>
+
+      <h3>Cara 2: Menggunakan pgAdmin GUI</h3>
+      <ol>
+        <li>Buka <strong>pgAdmin 4</strong></li>
+        <li>
+          Expand:
+          <strong
+            >Servers → PostgreSQL 16 → Databases → primary_school → Schemas →
+            public → Tables</strong
+          >
+        </li>
+        <li>Klik pada setiap tabel untuk melihat data</li>
+        <li>Klik tab <strong>Data</strong> untuk melihat isi tabel</li>
+      </ol>
+
+      <div class="page-break"></div>
+
+      <h2 id="langkah8">▶️ Langkah 8: Jalankan Aplikasi</h2>
+      <p>Aplikasi sudah siap berjalan dengan database yang terisi.</p>
+
+      <h3>Start development server:</h3>
+      <pre><code>npm run dev</code></pre>
+
+      <div class="success">
+        <strong>Output yang diharapkan:</strong>
+        <pre><code>  ▲ Next.js 16.1.6
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Ready in 2.3s</code></pre>
+      </div>
+
+      <h3>Buka di browser:</h3>
+      <pre><code>http://localhost:3000</code></pre>
+
+      <h2 id="langkah9">🧪 Langkah 9: Test Login & Akses</h2>
+
+      <h3>Test 1: Login sebagai Super Admin</h3>
+      <ol>
+        <li>Kunjungi: <code>http://localhost:3000/login</code></li>
+        <li>Masukkan email: <code>admin@sekolah.id</code></li>
+        <li>Masukkan password: <code>admin123</code></li>
+        <li>Klik <strong>Login</strong></li>
+        <li>
+          Expected redirect: <code>http://localhost:3000/admin/dashboard</code>
+        </li>
+        <li>
+          Anda akan melihat:
+          <strong>Dashboard admin dengan menu sidebar</strong>
+        </li>
+      </ol>
+
+      <h3>Test 2: Coba CRUD Admin Panel</h3>
+      <ol>
+        <li>Login sebagai admin</li>
+        <li>Klik <strong>"Pengumuman"</strong> di sidebar</li>
+        <li>Klik <strong>"Tambah Pengumuman"</strong> (tombol +)</li>
+        <li>
+          Isi form:
+          <ul>
+            <li>Judul: "Test Pengumuman"</li>
+            <li>Isi: "Ini adalah pengumuman test"</li>
+          </ul>
+        </li>
+        <li>Klik <strong>Save</strong> - data akan disimpan ke database</li>
+        <li>Refresh halaman - pengumuman baru akan tampil dari database</li>
+      </ol>
+
+      <h2 id="troubleshooting">🆘 Troubleshooting</h2>
+
+      <h3>Error 1: "psql is not recognized"</h3>
+      <p>
+        <strong>Penyebab:</strong> PostgreSQL belum ditambahkan ke PATH Windows
+      </p>
+      <p><strong>Solusi:</strong></p>
+      <ol>
+        <li>Tekan <code>Win + R</code></li>
+        <li>Ketik <code>environment</code> dan tekan Enter</li>
+        <li>Klik "Edit the system environment variables"</li>
+        <li>Klik "Environment Variables" button</li>
+        <li>Di "System variables", cari <code>Path</code> dan klik "Edit"</li>
+        <li>
+          Klik "New" dan tambahkan:
+          <code>C:\Program Files\PostgreSQL\16\bin</code>
+        </li>
+        <li>Klik OK 3x</li>
+        <li>Restart PowerShell dan coba lagi: <code>psql --version</code></li>
+      </ol>
+
+      <h3>Error 2: "Connection refused at 127.0.0.1:5432"</h3>
+      <p><strong>Penyebab:</strong> PostgreSQL server tidak berjalan</p>
+      <p><strong>Solusi:</strong></p>
+      <ol>
+        <li>
+          Tekan <code>Win + R</code> → ketik <code>services.msc</code> → Enter
+        </li>
+        <li>Cari "postgresql-x64-16"</li>
+        <li>Klik kanan → <strong>Start</strong></li>
+      </ol>
+
+      <h3>Error 3: "Database 'primary_school' already exists"</h3>
+      <p><strong>Penyebab:</strong> Database sudah pernah dibuat sebelumnya</p>
+      <p><strong>Solusi:</strong></p>
+      <pre><code>npm run prisma:migrate reset</code></pre>
+      <p>Pilih "y" saat ditanya. Ini akan menghapus dan recreate database.</p>
+
+      <h3>Error 4: ".env.local not found" atau "DATABASE_URL not defined"</h3>
+      <p>
+        <strong>Penyebab:</strong> File .env.local tidak ada atau belum disimpan
+      </p>
+      <p><strong>Solusi:</strong></p>
+      <ol>
+        <li>
+          Pastikan file ada di:
+          <code
+            >c:\Users\DUNIA
+            IMAJINASIKU\Documents\Web\primary-school\.env.local</code
+          >
+        </li>
+        <li>Tutup terminal dan buka terminal baru</li>
+        <li>Terminal lama tidak akan membaca .env.local yang baru</li>
+      </ol>
+
+      <h3>Error 5: "Port 3000 already in use"</h3>
+      <p>
+        <strong>Penyebab:</strong> Aplikasi Next.js sudah berjalan di port 3000
+      </p>
+      <p><strong>Solusi:</strong></p>
+      <pre><code>$env:PORT=3001
+npm run dev</code></pre>
+      <p>Buka <code>http://localhost:3001</code> di browser.</p>
+
+      <h2 id="accounts">📋 Test Login Accounts</h2>
+      <p>Semua akun ini siap digunakan setelah seed berhasil dilakukan.</p>
+
+      <h3>Super Admin Panel</h3>
+      <div class="account-box">
+        <strong>Email:</strong> admin@sekolah.id<br />
+        <strong>Password:</strong> admin123<br />
+        <strong>Role:</strong> SUPER_ADMIN<br />
+        <strong>Akses:</strong> http://localhost:3000/admin/dashboard
+      </div>
+
+      <h3>Guru/Pendidik 1</h3>
+      <div class="account-box">
+        <strong>Email:</strong> guru1@sekolah.id<br />
+        <strong>Password:</strong> guru123<br />
+        <strong>Role:</strong> PENDIDIK<br />
+        <strong>Nama:</strong> Ibu Siti Nurhaliza<br />
+        <strong>NIP:</strong> 196501011987032001
+      </div>
+
+      <h3>Staff/Tendik 1</h3>
+      <div class="account-box">
+        <strong>Email:</strong> staff1@sekolah.id<br />
+        <strong>Password:</strong> staff123<br />
+        <strong>Role:</strong> TENAGA_KEPENDIDIKAN<br />
+        <strong>Jabatan:</strong> Operator Sekolah
+      </div>
+
+      <h3>Siswa 1</h3>
+      <div class="account-box">
+        <strong>Email:</strong> siswa1@sekolah.id<br />
+        <strong>Password:</strong> siswa123<br />
+        <strong>Role:</strong> SISWA<br />
+        <strong>NISN:</strong> 0012345678<br />
+        <strong>Kelas:</strong> 1A
+      </div>
+
+      <h2>🎯 Ringkasan Process</h2>
+      <div class="flow-chart">
+        ┌─────────────────────────────────────────┐ │ 1. Install PostgreSQL │
+        └────────────────┬────────────────────────┘ ▼
+        ┌─────────────────────────────────────────┐ │ 2. Create Database
+        'primary_school' │ └────────────────┬────────────────────────┘ ▼
+        ┌─────────────────────────────────────────┐ │ 3. Edit .env.local │ │
+        DATABASE_URL="postgresql://..." │
+        └────────────────┬────────────────────────┘ ▼
+        ┌─────────────────────────────────────────┐ │ 4. npm run prisma:migrate
+        │ │ (Create all tables & schema) │
+        └────────────────┬────────────────────────┘ ▼
+        ┌─────────────────────────────────────────┐ │ 5. npm run prisma:seed │ │
+        (Insert test data & users) │ └────────────────┬────────────────────────┘
+        ▼ ┌─────────────────────────────────────────┐ │ 6. npm run dev │ │ Start
+        Next.js development server │ └────────────────┬────────────────────────┘
+        ▼ ┌─────────────────────────────────────────┐ │ 7. Open
+        http://localhost:3000 │ │ Login with test accounts │
+        └─────────────────────────────────────────┘
+      </div>
+
+      <div class="success">
+        <strong>✨ Selamat! Database Anda sudah siap 100%.</strong><br />
+        Aplikasi siap untuk development dan testing.
+      </div>
+
+      <div class="footer">
+        <p>Dokumen Panduan Membuat Database - Website Manajemen Sekolah</p>
+        <p>Versi 1.0 | 1 Maret 2026</p>
+        <p>Stack: Next.js 16 + PostgreSQL + Prisma ORM 6</p>
+      </div>
+    </div>
+  </body>
+</html>

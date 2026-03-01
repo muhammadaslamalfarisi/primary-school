@@ -45,6 +45,32 @@ export default function AdminPTK() {
   });
 
   useEffect(() => {
+    fetchPTK();
+  }, []);
+
+  const fetchPTK = async () => {
+    try {
+      const res = await fetch("/api/ptk", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: PTKItem[] = data.data.map((u: any) => ({
+          id: u.id,
+          name: u.fullName,
+          position: u.pendidik ? "Guru" : "Staff",
+          nip: u.pendidik?.nip || u.tenagaKependidikan?.nip || "",
+          qualification:
+            u.pendidik?.pendidikanTerakhir ||
+            u.tenagaKependidikan?.jabatan ||
+            "",
+        }));
+        setPTK(list);
+      }
+    } catch (err) {
+      console.error("fetchPTK error", err);
+    }
+  };
+
+  useEffect(() => {
     const stored = localStorage.getItem("ptk");
     if (stored) {
       setPTK(JSON.parse(stored));
@@ -61,18 +87,9 @@ export default function AdminPTK() {
     }
   }, []);
 
+  // Note: creating new PTK should be done via /api/auth/register-pendidik or register-staff
   const handleAdd = () => {
-    if (!formData.name || !formData.nip) return;
-
-    const newPTK: PTKItem = {
-      id: Math.max(...ptk.map((p) => p.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newPTK, ...ptk];
-    setPTK(updated);
-    localStorage.setItem("ptk", JSON.stringify(updated));
-    resetForm();
+    alert("Gunakan halaman pendaftaran khusus untuk menambah guru/staff.");
   };
 
   const handleEdit = (id: number) => {
@@ -90,21 +107,23 @@ export default function AdminPTK() {
   };
 
   const handleUpdate = () => {
-    if (!formData.name || !formData.nip) return;
-
-    const updated = ptk.map((p) =>
-      p.id === editingId ? { ...p, ...formData } : p,
-    );
-
-    setPTK(updated);
-    localStorage.setItem("ptk", JSON.stringify(updated));
-    resetForm();
+    alert("Edit PTK via halaman pengguna.");
   };
 
-  const handleDelete = (id: number) => {
-    const updated = ptk.filter((p) => p.id !== id);
-    setPTK(updated);
-    localStorage.setItem("ptk", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchPTK();
+      } else {
+        console.error("delete user error", await res.json());
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {

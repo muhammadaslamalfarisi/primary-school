@@ -52,35 +52,52 @@ export default function AdminProgram() {
     "bg-red-100",
   ];
 
-  useEffect(() => {
-    const stored = localStorage.getItem("programs");
-    if (stored) {
-      setPrograms(JSON.parse(stored));
-    } else {
-      const initial = PROGRAMS.map((p, idx) => ({
-        id: idx + 1,
-        name: p.title,
-        description: p.description,
-        slug: p.slug,
-        color: p.color,
-      }));
-      setPrograms(initial);
-      localStorage.setItem("programs", JSON.stringify(initial));
+  const fetchPrograms = async () => {
+    try {
+      const res = await fetch("/api/program", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: Program[] = data.data.map((p: any) => ({
+          id: p.id,
+          name: p.nama,
+          description: p.deskripsi,
+          slug: p.jenis.toLowerCase(),
+          color: "bg-blue-100",
+        }));
+        setPrograms(list);
+      }
+    } catch (err) {
+      console.error("fetchPrograms error", err);
     }
+  };
+
+  useEffect(() => {
+    fetchPrograms();
   }, []);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.name || !formData.slug) return;
-
-    const newProgram: Program = {
-      id: Math.max(...programs.map((p) => p.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newProgram, ...programs];
-    setPrograms(updated);
-    localStorage.setItem("programs", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/program", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama: formData.name,
+          deskripsi: formData.description,
+          jenis: formData.slug.toUpperCase(),
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchPrograms();
+        resetForm();
+      } else {
+        console.error("add program error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -97,22 +114,46 @@ export default function AdminProgram() {
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.name || !formData.slug) return;
-
-    const updated = programs.map((p) =>
-      p.id === editingId ? { ...p, ...formData } : p,
-    );
-
-    setPrograms(updated);
-    localStorage.setItem("programs", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.name || !formData.slug || editingId == null) return;
+    try {
+      const res = await fetch(`/api/program/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nama: formData.name,
+          deskripsi: formData.description,
+          jenis: formData.slug.toUpperCase(),
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchPrograms();
+        resetForm();
+      } else {
+        console.error("update program error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = programs.filter((p) => p.id !== id);
-    setPrograms(updated);
-    localStorage.setItem("programs", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/program/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchPrograms();
+      } else {
+        const result = await res.json();
+        console.error("delete program error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {

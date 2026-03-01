@@ -46,35 +46,52 @@ export default function AdminDownload() {
   });
 
   useEffect(() => {
-    const stored = localStorage.getItem("downloads");
-    if (stored) {
-      setDownloads(JSON.parse(stored));
-    } else {
-      const initial = DOWNLOADS.map((d, idx) => ({
-        id: idx + 1,
-        title: d.title,
-        description: d.category || "Dokumen",
-        category: d.category,
-        fileSize: d.size,
-        fileType: d.type,
-      }));
-      setDownloads(initial);
-      localStorage.setItem("downloads", JSON.stringify(initial));
-    }
+    fetchDownloads();
   }, []);
 
-  const handleAdd = () => {
+  const fetchDownloads = async () => {
+    try {
+      const res = await fetch("/api/download", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: DownloadItem[] = data.data.map((d: any) => ({
+          id: d.id,
+          title: d.judul,
+          description: d.kategori || "",
+          category: d.kategori || "",
+          fileSize: d.ukuran || "",
+          fileType: d.tipe || "",
+        }));
+        setDownloads(list);
+      }
+    } catch (err) {
+      console.error("fetchDownloads error", err);
+    }
+  };
+
+  const handleAdd = async () => {
     if (!formData.title) return;
-
-    const newDownload: DownloadItem = {
-      id: Math.max(...downloads.map((d) => d.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newDownload, ...downloads];
-    setDownloads(updated);
-    localStorage.setItem("downloads", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/download", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          kategori: formData.category,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchDownloads();
+        resetForm();
+      } else {
+        console.error("add download error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -92,22 +109,46 @@ export default function AdminDownload() {
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.title) return;
-
-    const updated = downloads.map((d) =>
-      d.id === editingId ? { ...d, ...formData } : d,
-    );
-
-    setDownloads(updated);
-    localStorage.setItem("downloads", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.title || editingId == null) return;
+    try {
+      const res = await fetch(`/api/download/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          judul: formData.title,
+          deskripsi: formData.description,
+          kategori: formData.category,
+        }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchDownloads();
+        resetForm();
+      } else {
+        console.error("update download error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = downloads.filter((d) => d.id !== id);
-    setDownloads(updated);
-    localStorage.setItem("downloads", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/download/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchDownloads();
+      } else {
+        const result = await res.json();
+        console.error("delete download error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {

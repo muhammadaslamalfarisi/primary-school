@@ -14,28 +14,38 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Demo credentials
-  const ADMIN_USERNAME = "admin";
-  const ADMIN_PASSWORD = "admin123";
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
 
-    setTimeout(() => {
-      if (
-        form.username === ADMIN_USERNAME &&
-        form.password === ADMIN_PASSWORD
-      ) {
-        localStorage.setItem("adminToken", "true");
-        localStorage.setItem("adminName", form.username);
-        router.push("/admin/dashboard");
-      } else {
-        setError("Username atau password salah");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.username,
+          password: form.password,
+        }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "Username atau password salah");
         setIsLoading(false);
+        return;
       }
-    }, 800);
+
+      // store name maybe
+      localStorage.setItem("adminToken", "true");
+      localStorage.setItem("adminName", data.user.username);
+      router.push("/admin/dashboard");
+    } catch (err) {
+      setError("Tidak dapat terhubung ke server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

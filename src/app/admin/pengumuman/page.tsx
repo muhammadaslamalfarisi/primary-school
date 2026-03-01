@@ -43,35 +43,49 @@ export default function AdminPengumuman() {
     category: "Pengumuman",
   });
 
+  // load from server
   useEffect(() => {
-    const stored = localStorage.getItem("announcements");
-    if (stored) {
-      setAnnouncements(JSON.parse(stored));
-    } else {
-      const initial = ANNOUNCEMENTS.map((a, i) => ({
-        id: i + 1,
-        title: a.title,
-        content: a.content,
-        date: a.date,
-        category: "Pengumuman",
-      }));
-      setAnnouncements(initial);
-      localStorage.setItem("announcements", JSON.stringify(initial));
-    }
+    fetchAnnouncements();
   }, []);
 
-  const handleAdd = () => {
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await fetch("/api/pengumuman", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const list: Announcement[] = data.data.map((a: any) => ({
+          id: a.id,
+          title: a.judul,
+          content: a.isi,
+          date: new Date(a.tanggal).toISOString().split("T")[0],
+          category: "Pengumuman",
+        }));
+        setAnnouncements(list);
+      }
+    } catch (err) {
+      console.error("fetchAnnouncements error", err);
+    }
+  };
+
+  const handleAdd = async () => {
     if (!formData.title || !formData.content) return;
-
-    const newAnnouncement: Announcement = {
-      id: Math.max(...announcements.map((a) => a.id), 0) + 1,
-      ...formData,
-    };
-
-    const updated = [newAnnouncement, ...announcements];
-    setAnnouncements(updated);
-    localStorage.setItem("announcements", JSON.stringify(updated));
-    resetForm();
+    try {
+      const res = await fetch("/api/pengumuman", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ judul: formData.title, isi: formData.content }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchAnnouncements();
+        resetForm();
+      } else {
+        console.error("add announcement error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleEdit = (id: number) => {
@@ -88,22 +102,42 @@ export default function AdminPengumuman() {
     }
   };
 
-  const handleUpdate = () => {
-    if (!formData.title || !formData.content) return;
-
-    const updated = announcements.map((a) =>
-      a.id === editingId ? { ...a, ...formData } : a,
-    );
-
-    setAnnouncements(updated);
-    localStorage.setItem("announcements", JSON.stringify(updated));
-    resetForm();
+  const handleUpdate = async () => {
+    if (!formData.title || !formData.content || editingId == null) return;
+    try {
+      const res = await fetch(`/api/pengumuman/${editingId}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ judul: formData.title, isi: formData.content }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        fetchAnnouncements();
+        resetForm();
+      } else {
+        console.error("update announcement error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id: number) => {
-    const updated = announcements.filter((a) => a.id !== id);
-    setAnnouncements(updated);
-    localStorage.setItem("announcements", JSON.stringify(updated));
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/pengumuman/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        fetchAnnouncements();
+      } else {
+        const result = await res.json();
+        console.error("delete announcement error", result);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const resetForm = () => {
